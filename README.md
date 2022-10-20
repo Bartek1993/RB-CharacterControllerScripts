@@ -1,6 +1,6 @@
 # RB-CharacterControllerScripts
 Scripts from my current Work in progress character controller
-
+This is physics based 3D character controller
 
 This project aims to:
 - player can move, jump, float and rotate (DONE)
@@ -12,6 +12,7 @@ This project aims to:
  TODO:
 - player can target enemies and objects (lock on system)
 - controller/mobile movement support
+- slope detection
 
 This isn't a game project
 I will use this as the Blueprint/reference for my future projects
