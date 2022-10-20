@@ -13,7 +13,7 @@ public class MoveTowardsGround : StateMachineBehaviour
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-      //GET THE player object
+        //GET THE player object
         player = GameObject.FindGameObjectWithTag("Player");
         rb = player.GetComponent<Rigidbody>();
         movement = player.gameObject.GetComponent<MovementRobot>();
@@ -31,3 +31,4 @@ public class MoveTowardsGround : StateMachineBehaviour
         player.transform.localPosition = Vector3.MoveTowards(player.transform.localPosition, ClimbUpDestination.transform.position, Time.deltaTime * 1.55f);
 
     }
+}
