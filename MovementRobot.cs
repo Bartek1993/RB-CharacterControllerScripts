@@ -45,27 +45,29 @@ public class MovementRobot : MonoBehaviour
 
     private void Start()
     {
+        ///GET ANIMATOR
         anim = GetComponent<Animator>();
+        //GET RIGIDBODY
         rigidBody = GetComponent<Rigidbody>();
+        //GET COLLIDER
         capCol = GetComponent<CapsuleCollider>();
-        //switchcam = true;
+       
     }
 
     void Update()
     {
         
-            setControlls();
-            setAnimator();
-            JumpMovementSetup();
-            CrouchMovementSet();
-            //Targeting();
-            CharacterSpeedSetup();
-            GetGroundStatus();
-            GravityControlls();
-            EdgeDetector();
-            GetGroundStatus();
-            GravityControlls();
-            Attacking();
+            
+            setInput(); // SETTING PLAYER INPUT
+            setAnimator(); // SETTING UP THE ANIMATIONS
+            JumpMovementSetup(); // JUMP SETTINGS
+            CrouchMovementSet(); // CROUCH MOVEMENT SETTINGS (NOT FULLY IMPLENTED)
+            //Targeting(); TARGETING ENEMIES OR OBJECTS (NOT FULLY IMPLENTED )
+            CharacterSpeedSetup(); // THIS METHOD ALLOWS ME TO CONTROLL PLAYER SPEED UNDER DIFFERENT CONDITIONS
+            GetGroundStatus(); // DETECTING GROUND
+            GravityControlls(); // SETTING GRAVITY FOR CHARACTER CONTROLLER
+            EdgeDetector(); // INTERACTION WITH THE EDGES
+            Attacking(); // PLAYER ATTACKING
             
         
       
@@ -85,17 +87,14 @@ public class MovementRobot : MonoBehaviour
     void FixedUpdate()
     {
 
-        
-            if (!is_edgeDetected)
+        GravityControlls(); // CONTROLLING THE GRAVITY
+        if (!is_edgeDetected)
             {
-                RigidbodyMovement();
-                RigidBodyJump();
+                RigidbodyMovement(); // PLAYER MOVEMENT
+                RigidBodyJump(); // PLAYER JUMP
             }
 
-            if (is_edgeDetected)
-            {
-                
-            }
+            
         
        
     }
@@ -109,7 +108,7 @@ public class MovementRobot : MonoBehaviour
 
         if (airtime > 1f && !is_grounded) 
         {
-            gravity -= 10 * player_mass;
+            gravity -= 10;
         }
 
         if (is_grounded) 
@@ -122,72 +121,74 @@ public class MovementRobot : MonoBehaviour
 
     private void GetGroundStatus()
     {
+        // CHECKING IF THE PLAYER IS GROUNDED, SCRIPT IS CALLED FROM GROUND DETECTOR OBJECT
         is_grounded = detectGround.is_grounded;
     }
 
  
     private void EdgeDetector()
     {
+        // CHECKING IF THE PLAYER COLLIDED WITH THE EDGE OBJECT
         is_edgeDetected = edgeTetector.edgeDetected;
     }
-    private void setControlls()
+    private void setInput()
     {
+         // GETTING PLAYER INPUT//
         x = Input.GetAxis("Horizontal");
         z = Input.GetAxis("Vertical");
-        Vector3 camForward = Camera.main.transform.forward;
-        Vector3 camRight = Camera.main.transform.right;
-        camForward.y = 0;
-        camRight.y = 0;
-        
-      
-            movement = camForward * z + camRight * x;
-          
-            //cameras[0].SetActive(true);
-            //cameras[1].SetActive(false);
+
        
     }
 
     private void CharacterSpeedSetup()
     {
-        //SET MAX SPEED ON THE GROUND
+        //SET SPEED INCREMENT WHEN THE PLAYER IS GROUNDED
         if (is_grounded)
         {
+            //speed will slowly increase
             if (movement.magnitude > 0.01)
             {
                 speed += 0.15f;
             }
+            //speed will slowly dicrease
             if (movement.magnitude < 0.1f)
             {
-                speed -= 0.05f;
+                speed -= 0.15f;
             }
         }
-        ///SET SPEED IN THE AIR;
+        ///SET SPEED DECREMENT WHEN THE PLAYER IS NOT GROUNDED
         if (!is_grounded)
         {
+            //speed will slowly increase
             if (movement.magnitude > 0.01)
             {
-                speed += 0.25f;
+                speed += 0.05f;
             }
+            //speed will slowly dicrease
             if (movement.magnitude < 0.01f)
             {
                 speed -= 0.25f;
             }
         }
         //SET MAX SPEED ON THE GROUND
+        
         if (is_grounded)
         {
-            if (speed > 6.5f)
+            //if speed value is 6.5f or above, it will lock at 6.5f;
+            if (speed >= 6.5f)
             {
                 speed = 6.5f;
             }
-
-            if (speed < 0f)
+            //if speed value is 0 or below, it will lock at 0f;
+            if (speed <= 0f)
             {
                 speed = 0f;
             }
         }
 
         //SET MAX SPEED FOR CROUCH MOVEMENT
+        //NOT FULLY IMPLENTED YET
+        
         if (is_grounded && is_crouching)
         {
             if (speed > 2.5f)
@@ -203,14 +204,15 @@ public class MovementRobot : MonoBehaviour
         //SET MAX SPEED WHILE IN THE AIR
         if (!is_grounded)
         {
+            //if speed value is 10.5f or above, it will lock at 10.5f;
             if (speed > 10.5f)
             {
                 speed = 10.5f;
             }
-
+            //if speed value is 0 or below, it will lock at 0f;
             if (speed < 0f)
             {
-                speed = 9f;
+                speed = 0f;
             }
         }
 
@@ -236,14 +238,17 @@ public class MovementRobot : MonoBehaviour
 
     private void JumpMovementSetup()
     {
+
         if (is_grounded)
         {
 
-            airtime = 0f;
-            groundtime += 0.005f;
-            is_floating = false;
-            rigidBody.drag = 0;
-            if (groundtime > 0.5f) 
+            airtime = 0f; // is always 0 while player collides with the ground
+            groundtime += 0.005f; // increasing the ground time (some animations and functions wont work while ground time is
+                                  // above or below
+                                  // a certain value)
+            is_floating = false; // player can't float while on the ground
+            rigidBody.drag = 0; // rigidbody drag is set to zero
+            if (groundtime > 0.5f) // this will only work when the ground time value is over 0.5f
             {
                 is_jumping = Input.GetKey(KeyCode.Space);
             }
@@ -253,11 +258,13 @@ public class MovementRobot : MonoBehaviour
 
         if (!is_grounded)
         {
-            is_crouching = false;
-            airtime += 0.005f;
-            groundtime = 0f;
-            is_jumping = false;
-            if (airtime > 1)
+            is_crouching = false; // player will not be able to crouch while in the air
+            airtime += 0.005f; // increasing the air time (some animations and functions wont work while ground time is
+                               // above or below
+                               // a certain value)
+            groundtime = 0f; //is always 0 while player is not colliding with the ground
+            is_jumping = false; // player cant jump again
+            if (airtime > 0.25)
             {
                 is_floating = Input.GetKey(KeyCode.Space);
             }
@@ -269,19 +276,16 @@ public class MovementRobot : MonoBehaviour
         
         rigidBody.AddForce(new Vector3(0f, jumpHeight, 0) * jumpSpeed, ForceMode.Impulse);
 
-        if (is_grounded && groundtime > 0.3f && is_jumping)
+        //standard jump when the player dont move
+        if (is_grounded && groundtime > 0.5f && is_jumping)
         {
             jumpHeight = 12.5f;
             jumpSpeed = 5;
         }
-        if (is_grounded && groundtime > 0.3f && is_jumping && is_crouching && movement.magnitude < 0.01f)
+        //jump from the crouching position, more height
+        if (is_grounded && groundtime > 0.5f && is_jumping && is_crouching)
         {
-            jumpHeight = 20f;
-            jumpSpeed = 5;
-        }
-        if (is_grounded && groundtime > 0.3f && is_jumping && is_crouching &&  movement.magnitude > 0.01f)
-        {
-            jumpHeight = 18f;
+            jumpHeight = 15f;
             jumpSpeed = 5;
         }
         if (!is_grounded)
@@ -289,13 +293,11 @@ public class MovementRobot : MonoBehaviour
             jumpHeight = 0f;
             jumpSpeed = 0;
 
-            if (!is_grounded && airtime >= 0.2f)
+            //when player is in the air and certain conditions are met player can float
+            if (!is_grounded && airtime >= 0.25f)
             {
-
                 if (is_floating)
                 {
-
-
                     rigidBody.drag = 8f;
                 }
                 else
@@ -303,29 +305,39 @@ public class MovementRobot : MonoBehaviour
                     rigidBody.drag = 0f;
                 }
             }
-
         }
-
     }
 
     private void RigidbodyMovement()
     {
 
-
-
+        // SETTING UP THE CAMERA, I AM USING CINEMACHINE PACKAGE 
+        // WILL WORK WITH ANY CAMERA TAGGED AS MAIN
+        Vector3 camForward = Camera.main.transform.forward;
+        Vector3 camRight = Camera.main.transform.right;
+        // RESTRICTION ON CAMERA AXIS, PLAYER WONT ROTATING ON THE Y AXIS
+        camForward.y = 0;
+        camRight.y = 0;
+        // SETTING UP THE MOVEMENT
+        // MOVEMENT IS VECTOR3
+        movement = camForward * z + camRight * x;
+        // IF HORIZONTAL OR VERTICAL INPUT IS GREATER THAN 0.01F THEN PLAYER WILL MOVE AND ROTATE
         if (movement.magnitude > 0.01 && !is_edgeDetected)
         {
+            //MOVE RIGIDBODY
             rigidBody.velocity = new Vector3(movement.x * speed, rigidBody.velocity.y, movement.z * speed);
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movement), .2f);
         }
 
 
     }
+    //THIS METHOD IS CALLED WHILE PLAYER IS ATTACKING, 
     public void showHitBox() 
     {
         StartCoroutine("hitboxshow");
     }
 
+    //HIT BOX APPEARS FOR 0.25SEC
     IEnumerator hitboxshow() 
     {
         hitboxx.SetActive(true);
@@ -333,11 +345,11 @@ public class MovementRobot : MonoBehaviour
         hitboxx.SetActive(false);
     }
 
+    // THIS IS CALLED FROM CLIMBING ANIMATION BEHAVIOUR (ANIMATION STATE UPDATE)
     public void setKinematicRB()
     {
         StartCoroutine("setKinematicState");
     }
-
     public IEnumerator setKinematicState()
     {
         
@@ -346,22 +358,24 @@ public class MovementRobot : MonoBehaviour
         Debug.Log("set kinamatic false");
         rigidBody.isKinematic = false;
     }
-
+   
     void setAnimator()
     {
-        anim.SetFloat("x", x);
-        anim.SetFloat("idlerotation", rotate);
-        anim.SetFloat("z", z);
-        anim.SetBool("jump", is_jumping);
-        anim.SetBool("floating", is_floating);
-        anim.SetBool("grounded", is_grounded);
-        anim.SetFloat("speed", speed);
-        anim.SetFloat("groundtime", groundtime);
-        anim.SetFloat("airtime", airtime);
-        anim.SetBool("crouch", is_crouching);
-        anim.SetBool("target", is_targeting);
-        anim.SetBool("climb", is_edgeDetected);
-        anim.SetFloat("gravity",gravity);
+        anim.SetFloat("x", x); /// SETTING HORIZONTAL INPUT FOR CHARACTER BLEND TREE
+        anim.SetFloat("idlerotation", rotate); //NOT IMPLEMENTED
+        anim.SetFloat("z", z); /// SETTING VERTICAL INPUT FOR CHARACTER BLEND TREE
+        anim.SetBool("jump", is_jumping); // JUMPING TRUE/FALSE
+        anim.SetBool("floating", is_floating); // PLAYER FLOATING ANIMATION TRUE/FALSE
+        anim.SetBool("grounded", is_grounded); // WHEN THE PLAYER COLLIDES WITH THE GROUND
+        anim.SetFloat("speed", speed); // PLAYER SPEED DIFFERENT PLAYER SPEED = DIFFERENT ANIMATION TRANSITIONS
+        anim.SetFloat("groundtime", groundtime); // HOW LONG IS THE PLAYER ON THE GROUND? USED FOR RESTRICTING SOME
+                                                 // ANIMATIONS AND MOVEMENT
+        anim.SetFloat("airtime", airtime); // HOW LONG IS THE PLAYER ABOVE THE GROUND? USED FOR RESTRICTING SOME
+                                           // ANIMATIONS AND MOVEMENT
+        anim.SetBool("crouch", is_crouching); // CROUNCHING IS IMPLEMENTED YET ANIMATIONS NOT SET UP
+        anim.SetBool("target", is_targeting);   // NOT IMPLEMENTED
+        anim.SetBool("climb", is_edgeDetected); // WHEN THE PLAYER COLLIDES WITH THE EDGE
+        anim.SetFloat("gravity",gravity);   // GRAVITY
     }
 
   
