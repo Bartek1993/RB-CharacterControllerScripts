@@ -1,4 +1,4 @@
-  using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,7 +29,7 @@ public class MoveTowardsGround : StateMachineBehaviour
 
         movement.setKinematicRB();
         player.transform.localPosition
-        = Vector3.MoveTowards(player.transform.localPosition, ClimbUpDestination.transform.position, Time.deltaTime * 1.35f);
+        = Vector3.MoveTowards(player.transform.localPosition, ClimbUpDestination.transform.position, Time.deltaTime * 1.5f);
 
     }
 }

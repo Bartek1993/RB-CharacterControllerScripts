@@ -162,7 +162,7 @@ public class MovementRobot : MonoBehaviour
             //speed will slowly increase
             if (movement.magnitude > 0.01)
             {
-                speed += 0.25f;
+                speed += 0.45f;
             }
             //speed will slowly dicrease
             if (movement.magnitude < 0.01f)
@@ -175,9 +175,9 @@ public class MovementRobot : MonoBehaviour
         if (is_grounded)
         {
             //if speed value is 6.5f or above, it will lock at 6.5f;
-            if (speed >= 6.5f)
+            if (speed >= 7.5f)
             {
-                speed = 6.5f;
+                speed = 7.5f;
             }
             //if speed value is 0 or below, it will lock at 0f;
             if (speed <= 0f)
