@@ -51,13 +51,13 @@ public class MovementRobot : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         //GET COLLIDER
         capCol = GetComponent<CapsuleCollider>();
-       
+
     }
 
     void Update()
     {
-        
-            
+
+
             setInput(); // SETTING PLAYER INPUT
             setAnimator(); // SETTING UP THE ANIMATIONS
             JumpMovementSetup(); // JUMP SETTINGS
@@ -68,21 +68,12 @@ public class MovementRobot : MonoBehaviour
             GravityControlls(); // SETTING GRAVITY FOR CHARACTER CONTROLLER
             EdgeDetector(); // INTERACTION WITH THE EDGES
             Attacking(); // PLAYER ATTACKING
-            
-        
-      
+
+
+
     }
 
-    private void Attacking()
-    {
-        if (is_grounded && !is_edgeDetected && !is_crouching) 
-        {
-            if (Input.GetKeyDown(KeyCode.Mouse0)) 
-            {
-                anim.SetTrigger("attack");
-            }
-        }
-    }
+
 
     void FixedUpdate()
     {
@@ -94,24 +85,33 @@ public class MovementRobot : MonoBehaviour
                 RigidBodyJump(); // PLAYER JUMP
             }
 
-            
-        
-       
+
+
+
+    }
+    private void Attacking()
+    {
+        if (is_grounded && !is_edgeDetected && !is_crouching)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                anim.SetTrigger("attack");
+            }
+        }
     }
 
-   
 
     private void GravityControlls()
     {
         gravity = Physics.gravity.y;
         player_mass = rigidBody.mass;
 
-        if (airtime > 1f && !is_grounded) 
+        if (airtime > 1f && !is_grounded)
         {
             gravity -= 10;
         }
 
-        if (is_grounded) 
+        if (is_grounded)
         {
             gravity = -40f;
         }
@@ -125,7 +125,7 @@ public class MovementRobot : MonoBehaviour
         is_grounded = detectGround.is_grounded;
     }
 
- 
+
     private void EdgeDetector()
     {
         // CHECKING IF THE PLAYER COLLIDED WITH THE EDGE OBJECT
@@ -137,7 +137,7 @@ public class MovementRobot : MonoBehaviour
         x = Input.GetAxis("Horizontal");
         z = Input.GetAxis("Vertical");
 
-       
+
     }
 
     private void CharacterSpeedSetup()
@@ -148,7 +148,7 @@ public class MovementRobot : MonoBehaviour
             //speed will slowly increase
             if (movement.magnitude > 0.01)
             {
-                speed += 0.15f;
+                speed += 0.25f;
             }
             //speed will slowly dicrease
             if (movement.magnitude < 0.1f)
@@ -162,7 +162,7 @@ public class MovementRobot : MonoBehaviour
             //speed will slowly increase
             if (movement.magnitude > 0.01)
             {
-                speed += 0.05f;
+                speed += 0.25f;
             }
             //speed will slowly dicrease
             if (movement.magnitude < 0.01f)
@@ -171,7 +171,7 @@ public class MovementRobot : MonoBehaviour
             }
         }
         //SET MAX SPEED ON THE GROUND
-        
+
         if (is_grounded)
         {
             //if speed value is 6.5f or above, it will lock at 6.5f;
@@ -188,12 +188,12 @@ public class MovementRobot : MonoBehaviour
 
         //SET MAX SPEED FOR CROUCH MOVEMENT
         //NOT FULLY IMPLENTED YET
-        
+
         if (is_grounded && is_crouching)
         {
-            if (speed > 2.5f)
+            if (speed > 2f)
             {
-                speed = 2.5f;
+                speed = 2f;
             }
 
             if (speed < 0f)
@@ -218,7 +218,7 @@ public class MovementRobot : MonoBehaviour
 
     }
 
-   
+
 
     private void CrouchMovementSet()
     {
@@ -252,7 +252,7 @@ public class MovementRobot : MonoBehaviour
             {
                 is_jumping = Input.GetKey(KeyCode.Space);
             }
-            
+
 
         }
 
@@ -273,11 +273,11 @@ public class MovementRobot : MonoBehaviour
 
     private void RigidBodyJump()
     {
-        
+
         rigidBody.AddForce(new Vector3(0f, jumpHeight, 0) * jumpSpeed, ForceMode.Impulse);
 
         //standard jump when the player dont move
-        if (is_grounded && groundtime > 0.5f && is_jumping)
+        if (is_grounded && groundtime > 0.25f && is_jumping)
         {
             jumpHeight = 12.5f;
             jumpSpeed = 5;
@@ -298,7 +298,8 @@ public class MovementRobot : MonoBehaviour
             {
                 if (is_floating)
                 {
-                    rigidBody.drag = 8f;
+
+                    rigidBody.drag = 8f; //To float in the air
                 }
                 else
                 {
@@ -311,7 +312,7 @@ public class MovementRobot : MonoBehaviour
     private void RigidbodyMovement()
     {
 
-        // SETTING UP THE CAMERA, I AM USING CINEMACHINE PACKAGE 
+        // SETTING UP THE CAMERA, I AM USING CINEMACHINE PACKAGE
         // WILL WORK WITH ANY CAMERA TAGGED AS MAIN
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
@@ -331,14 +332,14 @@ public class MovementRobot : MonoBehaviour
 
 
     }
-    //THIS METHOD IS CALLED WHILE PLAYER IS ATTACKING, 
-    public void showHitBox() 
+    //THIS METHOD IS CALLED WHILE PLAYER IS ATTACKING,
+    public void showHitBox()
     {
         StartCoroutine("hitboxshow");
     }
 
     //HIT BOX APPEARS FOR 0.25SEC
-    IEnumerator hitboxshow() 
+    IEnumerator hitboxshow()
     {
         hitboxx.SetActive(true);
         yield return new WaitForSeconds(0.25f);
@@ -352,13 +353,15 @@ public class MovementRobot : MonoBehaviour
     }
     public IEnumerator setKinematicState()
     {
-        
+
         rigidBody.isKinematic = true;
         yield return new WaitForSeconds(0.75f);
         Debug.Log("set kinamatic false");
         rigidBody.isKinematic = false;
     }
-   
+
+
+
     void setAnimator()
     {
         anim.SetFloat("x", x); /// SETTING HORIZONTAL INPUT FOR CHARACTER BLEND TREE
@@ -378,11 +381,9 @@ public class MovementRobot : MonoBehaviour
         anim.SetFloat("gravity",gravity);   // GRAVITY
     }
 
-  
 
-    
 
-   
+
+
+
 }
-
-
