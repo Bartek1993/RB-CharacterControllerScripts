@@ -6,6 +6,7 @@ using UnityEngine.Playables;
 public class MovementRobot : MonoBehaviour
 {
     public Rigidbody rigidBody;
+
     CapsuleCollider capCol;
     [SerializeField]
     public bool is_grounded, is_jumping, is_floating, is_crouching, is_targeting, is_enemy, is_edgeDetected;
@@ -224,7 +225,7 @@ public class MovementRobot : MonoBehaviour
     {
         if (is_grounded)
         {
-            is_crouching = Input.GetKey(KeyCode.LeftControl);
+            is_crouching = Input.GetKey(KeyCode.C);
 
         }
 
@@ -279,13 +280,13 @@ public class MovementRobot : MonoBehaviour
         //standard jump when the player dont move
         if (is_grounded && groundtime > 0.25f && is_jumping)
         {
-            jumpHeight = 12.5f;
+            jumpHeight = 14.5f;
             jumpSpeed = 5;
         }
         //jump from the crouching position, more height
         if (is_grounded && groundtime > 0.5f && is_jumping && is_crouching)
         {
-            jumpHeight = 15f;
+            jumpHeight = 17f;
             jumpSpeed = 5;
         }
         if (!is_grounded)

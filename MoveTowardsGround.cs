@@ -17,7 +17,6 @@ public class MoveTowardsGround : StateMachineBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         rb = player.GetComponent<Rigidbody>();
         movement = player.gameObject.GetComponent<MovementRobot>();
-
         ClimbUpDestination = GameObject.FindGameObjectWithTag("climbpos");
     }
 
@@ -25,11 +24,11 @@ public class MoveTowardsGround : StateMachineBehaviour
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         //playerCollider.enabled = false;
-
-
         movement.setKinematicRB();
         player.transform.localPosition
         = Vector3.MoveTowards(player.transform.localPosition, ClimbUpDestination.transform.position, Time.deltaTime * 1.5f);
+
+
 
     }
 }
